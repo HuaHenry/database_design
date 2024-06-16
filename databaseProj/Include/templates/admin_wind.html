@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>管理系统</title>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" type="text/css" href="static/css/admin.css">
+    <link rel="stylesheet" href="https://cdn.staticfile.net/twitter-bootstrap/5.1.1/css/bootstrap.min.css">
+    <script src="https://cdn.staticfile.net/jquery/2.1.1/jquery.min.js"></script>
+    <!-- 图表 -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/5.1.3/js/bootstrap.bundle.min.js"></script>
+</head>
+
+<body>
+    <!-- 顶部导航栏 -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary" style="margin-bottom: 30px;">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">后台管理</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown"
+                aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNavDropdown">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" aria-current="page" href="admin">主页</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="admin_site">基站数据</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="admin_wind">风力数据</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 风力基站数据表 -->
+    <div class="container">
+        <!-- <h1>风力基站数据管理</h1> -->
+
+        <!-- Search form -->
+        <form id="searchForm" class="mb-3" style="margin-top:20px;">
+            <div class="input-group">
+                <input type="text" id="searchInput" class="form-control" placeholder="输入任意信息搜索">
+                <button type="submit" class="btn btn-outline-primary">搜索</button>
+            </div>
+        </form>
+
+        <!-- Table to display wind station data -->
+        <div style="height:300px; overflow: auto;">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th scope="col">经度</th>
+                        <th scope="col">纬度</th>
+                        <th scope="col">风力级数</th>
+                        <th scope="col">风向</th>
+                        <th scope="col">海域</th>
+                        <th scope="col">更新时间</th>
+                        <th scope="col">是否展示</th>
+                        <th scope="col">操作</th>
+                    </tr>
+                </thead>
+                <tbody id="windStationData">
+                    <!-- Data will be rendered here -->
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Form for adding and editing data -->
+        <form id="dataForm" class="mb-3"
+            style="background-color: rgb(243, 243, 243);padding:12px;margin-top:15px;padding-left:20px;padding-right:20px;border-radius:10px;">
+            <h4 id="formTitle"><strong>更新风力数据</strong></h4>
+            <div style="display:flex;flex-direction:row">
+                <div class="input-group mb-3" style="width:49%">
+                    <span class="input-group-text" id="basic-addon1">经度</span>
+                    <input type="text" class="form-control" id="longitudeinput" placeholder="请输入经度" aria-describedby="basic-addon1">
+                </div>
+                <div class="input-group mb-3" style="width:50%;position:relative;left:1%">
+                    <span class="input-group-text" id="basic-addon1">纬度</span>
+                    <input type="text" class="form-control" id="latitudeinput" placeholder="请输入纬度" aria-describedby="basic-addon1">
+                </div>
+            </div>
+            <div class="input-group mb-3">
+                <span class="input-group-text" id="basic-addon1">风力级数</span>
+                <input type="text" class="form-control" id="speedinput" placeholder="请输入风力级数" aria-describedby="basic-addon1">
+            </div>
+            <div class="input-group mb-3">
+                <span class="input-group-text" id="basic-addon1">风向</span>
+                <input type="text" class="form-control" id="directioninput" placeholder="请输入风向" aria-describedby="basic-addon1">
+            </div>
+            <select class="form-select" id="sea_area_choice" style="margin-bottom:15px;">
+                <option selected>选择海域</option>
+                <option value="中国东海">中国东海</option>
+                <option value="中国黄海">中国黄海</option>
+                <option value="中国渤海">中国渤海</option>
+                <option value="中国南海">中国南海</option>
+            </select>       
+            <div class="form-check form-switch" style="margin-bottom:15px;">
+                <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault">
+                <label class="form-check-label" for="flexSwitchCheckDefault">是否展示</label>
+            </div>
+            <button type="button" id="updateButton" class="btn btn-success">更新</button>
+            <button type="button" id="cancelButton" class="btn btn-secondary">取消</button>
+        </form>
+    </div>
+</body>
+
+<script>
+
+    let windStationData = [
+    ];
+
+    //进入页面时发送请求获取所有基站数据
+    $(document).ready(function () {
+        $.ajax({
+            url: '/check_all_power', // 替换为你的后端 API 地址
+            type: 'GET',
+            success: function (data) {
+                console.log(data);
+                // 将数据渲染到windStationData变量中
+                // 解析json
+                windStationData = data;
+                console.log(windStationData);
+                renderData();
+            },
+            error: function (error) {
+                console.log(error);
+                alert('获取基站数据失败！');
+            }
+        });
+    });
+
+
+
+    // 将数据渲染到表格中
+    function renderData() {
+        const tableBody = document.getElementById('windStationData');
+        tableBody.innerHTML = '';
+        windStationData.forEach((data, index) => {
+            const show_text = data.show ? '是' : '否';
+            const row = `<tr>
+                      <td>${data.longitude}</td>
+                      <td>${data.latitude}</td>
+                      <td>${data.speed}</td>
+                      <td>${data.direction}</td>
+                      <td>${data.sea}</td>
+                      <td>${data.time}</td>
+                      <td>${show_text}</td>
+                      <td>
+                        <button type="button" class="btn btn-sm btn-success" onclick="editData(${data.id})">更新</button>
+                      </td>
+                    </tr>`;
+            tableBody.innerHTML += row;
+        });
+    }
+
+    // 编辑数据
+    function editData(id) {
+        const data = windStationData.find(item => item.id === id);
+        if (data) {
+            console.log(data);
+            document.getElementById('formTitle').textContent = '编辑基站数据';
+            document.getElementById('longitudeinput').value = data.longitude;
+            document.getElementById('latitudeinput').value = data.latitude;
+            document.getElementById('speedinput').value = data.speed;
+            document.getElementById('directioninput').value = data.direction;
+            document.getElementById('sea_area_choice').value = data.sea;
+            document.getElementById('flexSwitchCheckDefault').checked = data.show;
+            //document.getElementById('submitButton').classList.add('d-none');
+            //document.getElementById('updateButton').classList.remove('d-none');
+            //document.getElementById('cancelButton').classList.remove('d-none');
+
+            document.getElementById('updateButton').onclick = function () {
+                const newlongitude = document.getElementById('longitudeinput').value;
+                const newlatitude = document.getElementById('latitudeinput').value;
+                const newsea_area = document.getElementById('sea_area_choice').value;
+                const newspeed = document.getElementById('speedinput').value;
+                const newdirection = document.getElementById('directioninput').value;
+                const newshow = document.getElementById('flexSwitchCheckDefault').checked;
+                if (newlongitude && newlatitude && newsea_area && newspeed && newdirection) {
+                    const index = windStationData.findIndex(item => item.id === id);
+                    if (index !== -1) {
+                        //获取当前时间并截取为字符串
+                        const date = new Date();
+                        const year = date.getFullYear();
+                        const month = date.getMonth() + 1;
+                        const day = date.getDate();
+                        const hour = date.getHours();
+                        const minute = date.getMinutes();
+                        const second = date.getSeconds();
+                        const time = year + '-' + month + '-' + day + ' ' + hour + ':' + minute + ':' + second;
+                        windStationData[index].time = time;
+                        windStationData[index].longitude = newlongitude;
+                        windStationData[index].latitude = newlatitude;
+                        windStationData[index].sea = newsea_area;
+                        windStationData[index].speed = newspeed;
+                        windStationData[index].direction = newdirection;
+                        windStationData[index].show = newshow;
+                        //发送请求将数据更新到数据库
+                        console.log("更新数据", windStationData[index]);
+                        const editData_js = JSON.stringify(windStationData[index]);
+                        $.ajax({
+                            url: '/edit_power', // 替换为你的后端 API 地址
+                            type: 'GET',
+                            data: {
+                                "dataEdit": editData_js
+                            },
+                            success: function (data) {
+                                console.log(data);
+                            },
+                            error: function (error) {
+                                console.log(error);
+                                alert('更新风力数据失败！\n' + error);
+                            }
+                        });
+                        renderData();
+                        resetForm();
+                    }
+                } else {
+                    alert('请填写所有必填字段！');
+                }
+            };
+            document.getElementById('cancelButton').onclick = function () {
+                resetForm();
+            };
+        }
+    }
+
+    // 删除数据
+    function deleteData(id) {
+        const index = windStationData.findIndex(data => data.id === id);
+        if (index !== -1) {
+            windStationData.splice(index, 1);
+            renderData();
+            //发送请求将数据从数据库删除
+            console.log("删除数据", id);
+            $.ajax({
+                url: '/delete_site', // 替换为你的后端 API 地址
+                type: 'GET',
+                data: {
+                    "dataDelete": id
+                },
+                success: function (data) {
+                    console.log(data);
+                },
+                error: function (error) {
+                    console.log(error);
+                    alert('删除基站数据失败！\n' + error);
+                }
+            });
+        }
+    }
+
+    // 重置表单
+    function resetForm() {
+        document.getElementById('dataForm').reset();
+        document.getElementById('updateButton').classList.remove('d-none');
+        document.getElementById('cancelButton').classList.remove('d-none');
+    }
+
+    // 搜索操作
+    document.getElementById('searchForm').addEventListener('submit', function (event) {
+        event.preventDefault();
+        const searchTerm = document.getElementById('searchInput').value.trim().toLowerCase();
+        const filteredData = windStationData.filter(data =>
+            data.longitude.toString().toLowerCase().includes(searchTerm) ||
+            data.latitude.toString().toLowerCase().includes(searchTerm) ||
+            data.sea.toString().toLowerCase().includes(searchTerm) ||
+            data.speed.toString().toLowerCase().includes(searchTerm) ||
+            data.direction.toString().toLowerCase().includes(searchTerm) ||
+            data.time.toString().toLowerCase().includes(searchTerm)
+        );
+        // Render filtered data
+        const tableBody = document.getElementById('windStationData');
+        tableBody.innerHTML = '';
+        filteredData.forEach((data, index) => {
+            const show_text = data.show ? '是' : '否';
+            const row = `<tr>
+                      <td>${data.longitude}</td>
+                        <td>${data.latitude}</td>
+                        <td>${data.speed}</td>
+                        <td>${data.direction}</td>
+                        <td>${data.sea}</td>
+                        <td>${data.time}</td>
+                        <td>${show_text}</td>
+                      <td>
+                        <button type="button" class="btn btn-sm btn-success" onclick="editData(${data.id})">更新</button>
+                      </td>
+                    </tr>`;
+            tableBody.innerHTML += row;
+        });
+    });
+
+</script>

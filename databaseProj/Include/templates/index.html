@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>系统主页</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- device-width确保正确呈现在不同设备上 -->
+    <!-- initial-scale确保网页加载时不缩放 -->
+    <link rel="stylesheet" href="https://cdn.staticfile.net/twitter-bootstrap/3.3.7/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="static/css/app.css">
+    <script src="https://cdn.staticfile.net/jquery/2.1.1/jquery.min.js"></script>
+    <script src="https://cdn.staticfile.net/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script>
+</head>
+
+<body>
+    <nav class="navbar navbar-default" role="navigation" id="index_nav">
+        <div class="container-fluid">
+            <div class="navbar-header">
+                <a class="navbar-brand" id="index_nav_title">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor"
+                        class="bi bi-wind" viewBox="0 0 16 16">
+                        <path
+                            d="M12.5 2A2.5 2.5 0 0 0 10 4.5a.5.5 0 0 1-1 0A3.5 3.5 0 1 1 12.5 8H.5a.5.5 0 0 1 0-1h12a2.5 2.5 0 0 0 0-5zm-7 1a1 1 0 0 0-1 1 .5.5 0 0 1-1 0 2 2 0 1 1 2 2h-5a.5.5 0 0 1 0-1h5a1 1 0 0 0 0-2zM0 9.5A.5.5 0 0 1 .5 9h10.042a3 3 0 1 1-3 3 .5.5 0 0 1 1 0 2 2 0 1 0 2-2H.5a.5.5 0 0 1-.5-.5z" />
+                    </svg>
+                    &ensp;海洋风能与风电监测系统
+                </a>
+            </div>
+            <ul class="nav navbar-nav navbar-right">
+                <li><a id="index_nav_userid">{{Username}}</a></li>
+                <li><a href="login" id="index_nav_txt"><span class="glyphicon glyphicon-log-in"></span> 登录</a></li>
+                <li><a href="register" id="index_nav_txt"><span class="glyphicon glyphicon-user"></span> 注册</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <img src="static/images/index_back.jpg" alt="背景水上风电" id="index_back_img" />
+
+    <div id="overall_back">
+        <div class="container">
+            <!-- Bootstrap 3 的 container class 用于包裹页面上的内容， container 的左右外边距（margin-right、margin-left）交由浏览器决定 -->
+            <p> </p>
+            <h1 id="index_container_title">海洋风能与风电监测系统</h1>
+            <p>Marine wind and wind power monitoring systems of China</p>
+            <blockquote id="index_container_quote">
+                徙倚望沧海，天净水明霞。
+                <small>叶梦得 <cite title="Source Title">《水调歌头·秋色渐将晚》</cite></small>
+            </blockquote>
+
+            <div class="row" id="index_row">
+                
+                <div class="col-sm-4" onclick="window.open('power')">
+                    <h3 class="index_container_option">▶ 风力监控</h3>
+                </div>
+                <div class="col-sm-4" onclick="window.open('charts')">
+                    <h3 class="index_container_option">▶ 基站数据</h3>
+                </div>
+                <div class="col-sm-4" onclick="window.open('chat')">
+                    <h3 class="index_container_option">▶ 风电评估</h3>
+                </div>
+            </div>
+
+        </div>
+    </div>
+    <script>
+        var popover = new bootstrap.Popover(document.querySelector('.popover-dismiss'), {
+            trigger: 'focus'
+        })
+    </script>
+
+</body>
+
+</html>

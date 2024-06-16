@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no">
+    <title>基站数据</title>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.2.2/dist/echarts.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="static/css/charts.css">
+    <script src="https://cdn.staticfile.net/jquery/2.1.1/jquery.min.js"></script>
+    <!-- 新 Bootstrap5 核心 CSS 文件 -->
+    <link rel="stylesheet" href="https://cdn.staticfile.net/twitter-bootstrap/5.1.1/css/bootstrap.min.css">
+    <!--  popper.min.js 用于弹窗、提示、下拉菜单 -->
+    <script src="https://cdn.staticfile.net/popper.js/2.9.3/umd/popper.min.js"></script>
+    <!-- 最新的 Bootstrap5 核心 JavaScript 文件 -->
+    <script src="https://cdn.staticfile.net/twitter-bootstrap/5.1.1/js/bootstrap.min.js"></script>
+</head>
+<body>
+    <div class="head_titles">
+        <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" class="bi bi-clipboard-data"
+            viewBox="0 0 16 16" style="margin-left: 10px;">
+            <path
+                d="M4 11a1 1 0 1 1 2 0v1a1 1 0 1 1-2 0v-1zm6-4a1 1 0 1 1 2 0v5a1 1 0 1 1-2 0V7zM7 9a1 1 0 0 1 2 0v3a1 1 0 1 1-2 0V9z" />
+            <path
+                d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1v-1z" />
+            <path
+                d="M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5h3zm-3-1A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3z" />
+        </svg>
+        <div id="power_title"> 基站数据</div>
+    </div>
+
+    <div class="option_container">
+        <!-- 顶部栏选择 -->
+        <div class="charts_container">
+            <p>
+                <a class="btn btn-primary" data-bs-toggle="collapse" href="#multiCollapseExample1" onclick="get_site_data()"
+                    role="button" aria-expanded="false" aria-controls="multiCollapseExample1">国家海洋风力基站分布</a>
+                <button class="btn btn-primary" type="button" data-bs-toggle="collapse" onclick="show_pie_chart()"
+                    data-bs-target="#multiCollapseExample2" aria-expanded="false"
+                    aria-controls="multiCollapseExample2">各海域风力基站占比</button>
+            </p>
+            <div class="row">
+                <div class="col">
+                    <div class="collapse multi-collapse" id="multiCollapseExample1">
+                        <div class="card card-body" id="multiCollapseExample1_content">
+                            <div id="chart" style="width: 600px; height: 400px;"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="collapse multi-collapse" id="multiCollapseExample2">
+                        <div class="card card-body" id="multiCollapseExample2_content">
+                            <div id="pie_chart" style="width: 600px; height: 400px;"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 详细信息 -->
+        <div class="charts_container">
+            <p>
+                <a class="btn btn-primary" data-bs-toggle="collapse" href="#multiCollapseExample3" onclick="" role="button"
+                    aria-expanded="false" aria-controls="multiCollapseExample1" style="margin-top:10px;">基站详情</a>
+            </p>
+            <div class="row">
+                <div class="col">
+                    <div class="collapse multi-collapse" id="multiCollapseExample3">
+                        <div class="card card-body" id="multiCollapseExample3_content">
+                            <!-- 绘制信息表 -->
+                            <table id="dataTable" class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>经度</th>
+                                        <th>纬度</th>
+                                        <th>海域</th>
+                                        <th>海洋深度</th>
+                                        <th>pH</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tableBody">
+                                    <!-- 自动填充后端返回的数据 -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    
+
+    <script>
+        // 风力基站分布图标
+        var site_chart = echarts.init(document.getElementById('chart'));
+        var site_data = [[],[],[],[]];
+        var site_sea = [0,0,0,0];
+
+        // 进入页面加载风力数据，填充折线图和散点图
+        $(document).ready(function () {
+            $.ajax({
+                url: "/check_station",
+                type: "GET",
+                success: function (data) {
+                    console.log(data);
+                    for (var i = 0; i < data.length; i++) {
+                        if (data[i].sea_area == '中国东海') {
+                            site_data[0].push([data[i].longitude, data[i].latitude]);
+                        }
+                        else if (data[i].sea_area == '中国南海') {
+                            site_data[1].push([data[i].longitude, data[i].latitude]);
+                        }
+                        else if (data[i].sea_area == '中国黄海') {
+                            site_data[2].push([data[i].longitude, data[i].latitude]);
+                        }
+                        else if (data[i].sea_area == '中国渤海') {
+                            site_data[3].push([data[i].longitude, data[i].latitude]);
+                        }
+                    }
+                    site_chart.setOption(site_option);
+                },
+                error: function (error) {
+                    console.log(error);
+                    alert(error);
+                }
+            });
+
+            // 获取基站数据 用于填充基站数据表
+            $.ajax({
+                url: '/station_info', // 替换为你的后端 API 地址
+                method: 'GET',
+                success: function (data) {
+                    // 成功获取数据后填充表格
+                    populateTable(data);
+                },
+                error: function (err) {
+                    alert('获取基站失败，无法查看详细信息表。\n请检查网络连接或稍后重试。');
+                }
+            });
+            // 填充表格的函数
+            function populateTable(data) {
+                var tableBody = $('#tableBody');
+                tableBody.empty(); // 清空表格体
+
+                // 遍历数据，生成表格行
+                data.forEach(function (item) {
+                    var row = '<tr>' +
+                        '<td>' + item.id + '</td>' +
+                        '<td>' + item.longitude + '</td>' +
+                        '<td>' + item.latitude + '</td>' +
+                        '<td>' + item.sea_area + '</td>' +
+                        '<td>' + item.depth + '</td>' +
+                        '<td>' + item.pH + '</td>' +
+                        '</tr>';
+                    tableBody.append(row);
+                });
+            }
+        });
+
+
+        function get_site_data(){
+            var site_option = {
+                xAxis: {
+                    type: 'value',
+                    name: '经度',
+                    min: 111,
+                    max: 126,
+                },
+                yAxis: {
+                    type: 'value',
+                    name: '纬度',
+                    min: 0,
+                    max: 42,
+                },
+                series: [
+                    {
+                        type: 'scatter',
+                        name: '中国东海',
+                        data: site_data[0],
+                        color: '#96D2B0'
+                    },
+                    {
+                        type: 'scatter',
+                        name: '中国南海',
+                        data: site_data[1],
+                        color: '#35B9C5'
+                    },
+                    {
+                        type: 'scatter',
+                        name: '中国黄海',
+                        data: site_data[2],
+                        color: '#2681B6'
+                    },
+                    {
+                        type: 'scatter',
+                        name: '中国渤海',
+                        data: site_data[3],
+                        color: '#1E469B'
+                    }
+                ],
+                tooltip: {
+                    trigger: 'item',
+                    formatter: function (params) {
+                        return params.seriesName + '<br>(' + params.value[0] + ', ' + params.value[1] + ')'
+                    }
+                },
+                legendHoverLink: true, 
+                legend: {
+                    data: ['中国东海', '中国南海', '中国黄海', '中国渤海'],
+                },
+            };
+            site_chart.setOption(site_option);
+        }
+
+        // 绘制一个饼图
+        var site_pie = echarts.init(document.getElementById('pie_chart'));
+        //根据风力基站的海域绘制pie chart
+        function show_pie_chart() {
+            var site_pie_option = {
+                legendHoverLink: true, 
+                legend: {
+                    data: ['中国东海', '中国南海', '中国黄海', '中国渤海']
+                },
+                series: [
+                    {
+                        name: '风力基站占比',
+                        type: 'pie',
+                        radius: '55%',
+                        center: ['50%', '60%'],
+                        data: [
+                            { value: site_data[0].length, name: '中国东海' },
+                            { value: site_data[1].length, name: '中国南海' },
+                            { value: site_data[2].length, name: '中国黄海' },
+                            { value: site_data[3].length, name: '中国渤海' }
+                        ],
+                        emphasis: {
+                            itemStyle: {
+                                shadowBlur: 10,
+                                shadowOffsetX: 0,
+                                shadowColor: 'rgba(0, 0, 0, 0.5)'
+                            }
+                        },
+                        tooltip: {
+                            trigger: 'item',
+                            formatter: '{b}: {c}个'
+                        }
+                    }
+                ],
+                tooltip: {
+                    trigger: 'item',
+                    formatter: '{b}: {c}个'
+                }
+            };
+            site_pie.setOption(site_pie_option);
+        }
+
+
+
+    </script>
+</body>
+</html>

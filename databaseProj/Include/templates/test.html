@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="shortcut icon" herf="#">
+        <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+        <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+        <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    </head>
+<body>
+    <!-- Your HTML content goes here -->
+    <div id="root"></div>
+
+    
+    <script type="text/babel">
+        // 类组件
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+
+        //const lists = ["class","function"]
+
+        class App extends React.Component {
+            constructor(){
+                super();    // 调用父类的构造函数
+                //把数组内容放在react状态里 -> 就可以动态操作
+                this.state = {
+                    lists: ["class","function"]
+                }
+            }
+
+            componentDidMount(){
+                fetch("https://pokeapi.co/api/v2/pokemon")
+                    .then(res=>res.json())
+                    .then(
+                        json=>{this.setState({lists:json.results,});
+                        console.log(json.results);
+                    })
+            }
+
+            render() {
+                return (
+                    <div>
+                        <h1>Hello, React!</h1>
+                        <input type="search" />
+                        <ul> 
+                            {
+                                this.state.lists.map(lists => <li>{lists.name}</li>)
+                            }
+                        </ul> 
+                    </div>
+                );
+            }
+        }
+
+        root.render(<App />);
+    </script>
+</body> 
+</html>
