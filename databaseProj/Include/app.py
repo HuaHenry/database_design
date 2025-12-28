@@ -242,8 +242,10 @@ def station_info():
     return jsonify([{"id":w.id ,"latitude": w.latitude, "longitude": w.longitude, "sea_area":w.sea, "depth":w.depth, "pH":w.pH } for w in site])
 
 # 百度文心api调用对话实现
-API_KEY = "3v6bXvhkGJckDiwpdFqvYcP2"
-SECRET_KEY = "B20oaVaMThEd8n1ZicfP1PSmx0rsXX24"
+# 需要自行获取百度文心API的API_KEY和SECRET_KEY
+# 参考文档：https://cloud.baidu.com/doc/WENXINWORKSHOP/s/
+API_KEY = "自行获取"
+SECRET_KEY = "自行获取"
  
 def Wenxin_chat(prompt):
     url = "https://aip.baidubce.com/rpc/2.0/ai_custom/v1/wenxinworkshop/chat/ernie_speed?access_token=" + get_access_token()
