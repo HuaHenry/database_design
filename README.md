@@ -16,7 +16,7 @@
 
 
 
-### 页面
+## 页面
 
 | 主页<br />![image-20251228215512353](./README.assets/image-20251228215512353.png) | 登陆<br />![image-20251228220835476](./README.assets/image-20251228220835476.png) |
 | ---- | ---- |
@@ -27,17 +27,47 @@
 
 
 
-### 运行项目
+## 运行项目
+
+### 环境准备
+
+创建虚拟环境
+
+```bash
+conda create -n WindPred python=3.12
+conda activate WindPred
+```
+
+下载依赖
+
+```bash
+pip install -r requirements.txt
+```
 
 
 
+### 启动 flask 网页
+
+```bash
+python databaseProj/Include/app.py 
+```
 
 
 
+### 获取文心一言 aksk
+
+前往 [百度千帆·大模型服务及Agent开发平台](https://cloud.baidu.com/doc/qianfan/index.html) 获取模型aksk，在 `app.py` 中修改以下代码：
+
+```py
+# 百度文心api调用对话实现
+# 需要自行获取百度文心API的API_KEY和SECRET_KEY
+# 参考文档：https://cloud.baidu.com/doc/WENXINWORKSHOP/s/
+API_KEY = "自行获取"
+SECRET_KEY = "自行获取"
+```
 
 
 
+## 技术细节
 
-
-
-
+详见 [报告文档](./details.doc)
