@@ -1,5 +1,12 @@
 # OceanWindSense：海洋风能与风电监测系统
 
+![Python](https://img.shields.io/badge/Python-3.12-3776AB?logo=python&logoColor=white)
+![Flask](https://img.shields.io/badge/Framework-Flask-000000?logo=flask&logoColor=white)
+![SQLite](https://img.shields.io/badge/Database-SQLAlchemy-D71F00?logo=sqlite&logoColor=white)
+![Bootstrap](https://img.shields.io/badge/Frontend-Bootstrap-7952B3?logo=bootstrap&logoColor=white)
+![ERNIE Bot](https://img.shields.io/badge/AI-文心一言-0052D4?logo=baidu&logoColor=white)
+![Tongji](https://img.shields.io/badge/University-同济大学-D21F1B)
+
 <strong>"徙倚望沧海，天净水明霞"</strong><i>  —— 叶梦得 《水调歌头·秋色渐将晚》</i>
 
 
